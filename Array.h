@@ -21,6 +21,7 @@ public:
 	bool isFull();
 	bool isEmpty();
 	T get(int) const;
+	int getCount() const;
 	T operator[](int at) const;
 	int getSize() const;
 	void resize(int);
@@ -109,6 +110,12 @@ T Array<T>::get(int i) const
 {
 	if (i > _count - 1) throw std::exception("Get failure: выход за пределы");
 	return _data[i];
+}
+
+template<typename T>
+inline int Array<T>::getCount() const
+{
+	return _count;
 }
 
 template <typename T>
