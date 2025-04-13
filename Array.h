@@ -148,12 +148,6 @@ int Array<T>::getSize() const
 }
 
 template <typename T>
-int Array<T>::getCount() const
-{
-	return _count;
-}
-
-template <typename T>
 void Array<T>::resize(int slotsToAdd)
 {
 	if (_size + slotsToAdd > MAX_SIZE || slotsToAdd < 1) throw std::exception("Resize failure: ñëèøêîì áîëüøîé íîâûé ðàçìåð ìàññèâà/äîáàâëåíèå 0 èëè îòðèöàòåëüíîãî êîë-âà ÿ÷ååê");
