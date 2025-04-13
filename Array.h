@@ -8,7 +8,7 @@
 #define RESIZEAMOUNT 5
 #define MAX_SIZE INT32_MAX/4
 
-template <typename T> class Array //: public DataManager<T> //Класс - один из способов хранения данных
+template <typename T> class Array //: public DataManager<T> //ГЉГ«Г Г±Г± - Г®Г¤ГЁГ­ ГЁГ§ Г±ГЇГ®Г±Г®ГЎГ®Гў ГµГ°Г Г­ГҐГ­ГЁГї Г¤Г Г­Г­Г»Гµ
 {
 public:
 	Array();
@@ -21,7 +21,7 @@ public:
 	bool isFull();
 	bool isEmpty();
 	T get(int) const;
-	T operator[](int at) const;	// используется при получении содержимого из ячейки массива
+	T operator[](int at) const;	// ГЁГ±ГЇГ®Г«ГјГ§ГіГҐГІГ±Гї ГЇГ°ГЁ ГЇГ®Г«ГіГ·ГҐГ­ГЁГЁ Г±Г®Г¤ГҐГ°Г¦ГЁГ¬Г®ГЈГ® ГЁГ§ ГїГ·ГҐГ©ГЄГЁ Г¬Г Г±Г±ГЁГўГ 
 	int getSize() const;
 	void resize(int);
 	void show();
@@ -50,7 +50,7 @@ template <typename T>
 Array<T>::Array(int size)
 {
 	_count = 0;
-	if (size < 0 || size > MAX_SIZE) throw std::exception("Constructor failure: размер меньше нуля/слишком большой");
+	if (size < 0 || size > MAX_SIZE) throw std::exception("Constructor failure: Г°Г Г§Г¬ГҐГ° Г¬ГҐГ­ГјГёГҐ Г­ГіГ«Гї/Г±Г«ГЁГёГЄГ®Г¬ ГЎГ®Г«ГјГёГ®Г©");
 	_size = size;
 	_data = new T [_size];
 }
@@ -88,7 +88,7 @@ void Array<T>::add(T&& x)
 template <typename T>
 void Array<T>::pushAt(int i, T&& x)
 {
-	if (i < 0 || i >= _size) throw std::exception("Add failure: размер меньше нуля/слишком большой");
+	if (i < 0 || i >= _size) throw std::exception("Add failure: Г°Г Г§Г¬ГҐГ° Г¬ГҐГ­ГјГёГҐ Г­ГіГ«Гї/Г±Г«ГЁГёГЄГ®Г¬ ГЎГ®Г«ГјГёГ®Г©");
 	_data[i] = x;
 	_count++;
 }
@@ -108,14 +108,14 @@ bool Array<T>::isEmpty()
 template <typename T>
 T Array<T>::get(int i) const
 {
-	if (i > _count - 1) throw std::exception("Get failure: выход за пределы");
+	if (i > _count - 1) throw std::exception("Get failure: ГўГ»ГµГ®Г¤ Г§Г  ГЇГ°ГҐГ¤ГҐГ«Г»");
 	return _data[i];
 }
 
-template <typename T>		//оператор для вывода данных
+template <typename T>
 T Array<T>::operator[](int i) const
 {
-	if (i > _count - 1) throw std::exception("Get failure: выход за пределы");
+	if (i > _count - 1) throw std::exception("Get failure: ГўГ»ГµГ®Г¤ Г§Г  ГЇГ°ГҐГ¤ГҐГ«Г»");
 	return _data[i];
 }
 
@@ -126,9 +126,9 @@ void Array<T>::clear()
 }
 
 template <typename T>
-void Array<T>::moveElementsLeft(int pos) //сдвинуть элементы влево, начиная с pos
+void Array<T>::moveElementsLeft(int pos) //Г±Г¤ГўГЁГ­ГіГІГј ГЅГ«ГҐГ¬ГҐГ­ГІГ» ГўГ«ГҐГўГ®, Г­Г Г·ГЁГ­Г Гї Г± pos
 {
-	if (pos < 1 || pos >= _count) throw std::exception("MoveElementsLeft failure: позиция меньше 1 или больше, чем последний элемент");
+	if (pos < 1 || pos >= _count) throw std::exception("MoveElementsLeft failure: ГЇГ®Г§ГЁГ¶ГЁГї Г¬ГҐГ­ГјГёГҐ 1 ГЁГ«ГЁ ГЎГ®Г«ГјГёГҐ, Г·ГҐГ¬ ГЇГ®Г±Г«ГҐГ¤Г­ГЁГ© ГЅГ«ГҐГ¬ГҐГ­ГІ");
 	for (int i = pos; i < _size; i++)
 	{
 			_data[i - 1] = _data[i];
@@ -150,7 +150,7 @@ int Array<T>::getCount() const
 template <typename T>
 void Array<T>::resize(int slotsToAdd)
 {
-	if (_size + slotsToAdd > MAX_SIZE || slotsToAdd < 1) throw std::exception("Resize failure: слишком большой новый размер массива/добавление 0 или отрицательного кол-ва ячеек");
+	if (_size + slotsToAdd > MAX_SIZE || slotsToAdd < 1) throw std::exception("Resize failure: Г±Г«ГЁГёГЄГ®Г¬ ГЎГ®Г«ГјГёГ®Г© Г­Г®ГўГ»Г© Г°Г Г§Г¬ГҐГ° Г¬Г Г±Г±ГЁГўГ /Г¤Г®ГЎГ ГўГ«ГҐГ­ГЁГҐ 0 ГЁГ«ГЁ Г®ГІГ°ГЁГ¶Г ГІГҐГ«ГјГ­Г®ГЈГ® ГЄГ®Г«-ГўГ  ГїГ·ГҐГҐГЄ");
 
 	T* arr = new T[_size];
 
@@ -179,26 +179,26 @@ void Array<T>::show()
 {
 	if (isEmpty())
 	{
-		std::cout << "Пустой массив" << std::endl;
+		std::cout << "ГЏГіГ±ГІГ®Г© Г¬Г Г±Г±ГЁГў" << std::endl;
 		return;
 	}
 	for (int i = 0; i < _count; i++)
 	{
-		std::cout << "Элемент " << i << " : " << _data[i] << std::endl;
+		std::cout << "ГќГ«ГҐГ¬ГҐГ­ГІ " << i << " : " << _data[i] << std::endl;
 	}
 }
 
 template <typename T>
 void Array<T>::deleteAt(int i)
 {
-	if (i < 0 || i >= _size) throw std::exception("Delete failure: выход за пределы массива");
-	if (i>_count-1) std::cout << "Пустой элемент!" << std::endl;
+	if (i < 0 || i >= _size) throw std::exception("Delete failure: ГўГ»ГµГ®Г¤ Г§Г  ГЇГ°ГҐГ¤ГҐГ«Г» Г¬Г Г±Г±ГЁГўГ ");
+	if (i>_count-1) std::cout << "ГЏГіГ±ГІГ®Г© ГЅГ«ГҐГ¬ГҐГ­ГІ!" << std::endl;
 
 	if (i<_size-2)
 	moveElementsLeft(i+1);
 	_count--;
 }
-/*
+
 template <typename T>
 bool Array<T>::find(T&& x, int& index)
 {
@@ -210,6 +210,6 @@ bool Array<T>::find(T&& x, int& index)
 			}
 	return false;
 }
-*/
+
 
 

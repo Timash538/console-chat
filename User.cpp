@@ -6,35 +6,41 @@ User::User()
 
 std::string User::getNickname()	const
 {
-	return nickname;
+	return _nickname;
 }
 
 std::string User::getLogin() const
 {
-	return login;
+	return _login;
 }
 
 std::string User::getPassword() const
 {
-	return password;
+	return _password;
 }
 
-void User::setNickname(std::string&& _nickname)
+void User::setNickname(std::string&& nickname)
 {
-	nickname = _nickname;
+	_nickname = nickname;
 }
 
-void User::setLogin(std::string&& _login)
+void User::setLogin(std::string&& login)
 {
-	login = _login;
+	_login = login;
 }
 
-void User::setPassword(std::string&& _password)
+void User::setPassword(std::string&& password)
 {
-	password = _password;
+	_password = password;
 }
 
-bool User::checkPassword(std::string _password) const
+bool User::checkPassword(std::string&& password) const
 {
-	return (password == _password) ? true : false;
+	return (_password == password) ? true : false;
+}
+
+bool User::operator==(const User& b)
+{
+	if (_login == b._login && _nickname == b._nickname && _password == b._password) return true;
+	return false;
 }
