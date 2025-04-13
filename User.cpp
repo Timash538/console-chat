@@ -1,6 +1,10 @@
 #include "User.h"
 
-std::string User::getNickname() const
+User::User()
+{
+}
+
+std::string User::getNickname()	const
 {
 	return _nickname;
 }
