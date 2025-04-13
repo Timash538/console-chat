@@ -1,11 +1,13 @@
 #include "ConversationManager.h"
+#include "DataManager.h"
 
 ConversationManager::ConversationManager()
 {
 }
 
-ConversationManager::ConversationManager(Array<User>& allUsers, Array<Message>& privateMessagePool, Array<Message>& commonMessagePool)
+ConversationManager::ConversationManager(Array<Message>& privateMessagePool, Array<Message>& commonMessagePool)
 {
+    allUsers = UserManager(std::move(std::make_unique<Array<User>>(10)));
 }
 
 void ConversationManager::cleanConsole()         // ќчищаем консоль
@@ -31,7 +33,7 @@ void ConversationManager::start()
                 this->cleanConsole();
             }
             isItNextLoop = true;
-            this->userRegistration(allUsers);
+            this->userRegistration();
             break;
         case '2':
             if (isItNextLoop)
@@ -44,11 +46,11 @@ void ConversationManager::start()
                 std::cout << "\n\nЌет зарегистрированных пользователей, начните с п.1.\n\n";
                 break;
             }
-            uNum = this->usersInput(allUsers);		//номер зарегистрировавшегос€ пользовател€ из массива Users
+            uNum = this->usersInput();		//номер зарегистрировавшегос€ пользовател€ из массива Users
             if (uNum > -1)
             {
-                User user = allUsers[uNum];			//получаем запись этого пользовател€
-                this->userMessChoise(user, allUsers, privateMessagePool, commonMessagePool);
+                User user = allUsers.getUser(uNum);			//получаем запись этого пользовател€
+                this->userMessChoise(user, privateMessagePool, commonMessagePool);
             }
             break;
         case '3':
@@ -81,7 +83,7 @@ char ConversationManager::regOrComm()
     }
 }
 
-bool ConversationManager::userRegistration(Array<User>& allUsers)
+bool ConversationManager::userRegistration()
 {
     this->cleanConsole();
     std::cout << "\n\n–егистраци€ нового пользовател€:\n\n";
@@ -123,7 +125,7 @@ bool ConversationManager::userRegistration(Array<User>& allUsers)
             bool isLogUnique = true;
             for (int i = 0; i < allUsers.getCount(); ++i)
             {
-                if (allUsers[i].getLogin() == log) 
+                if (allUsers.findUserByLogin(std::move(log))) 
                 {
                     isLogUnique = false;
                     break;
@@ -180,7 +182,7 @@ bool ConversationManager::userRegistration(Array<User>& allUsers)
             bool isLogUnique = true;
             for (int i = 0; i < allUsers.getCount(); ++i)
             {
-                if (allUsers[i].getNickname() == name)
+                if (allUsers.findUserByNickname(std::move(name)))
                 {
                     isLogUnique = false;
                     break;
@@ -232,14 +234,12 @@ bool ConversationManager::userRegistration(Array<User>& allUsers)
     }
     //std::cout << "¬веден пароль: " << pass << std::endl;                                          //***ќтладка****
     //«аносим в массив нового пользовател€
-    User* ptrUser = new User(log, name, pass);
-    allUsers.add(std::move(*ptrUser));
-    delete ptrUser;
+    allUsers.addUser(std::move(User(log, name, pass)));
     std::cout << "\n\nЌовый пользователь '" << name << "' успешно зарегистрирован.\n\n";
     return true;
 }
 
-int ConversationManager::usersInput(Array<User>& allUsers)
+int ConversationManager::usersInput()
 {
     std::string log{""};
     std::string pass{""};
@@ -258,7 +258,7 @@ int ConversationManager::usersInput(Array<User>& allUsers)
     int userNum{-1};
     for (int i = 0; i < allUsers.getCount(); ++i)
     {
-        if (allUsers[i].getLogin() == log)
+        if (allUsers.getUser(i).getLogin() == log)
         {
             userNum = i;
             break;
@@ -274,7 +274,7 @@ int ConversationManager::usersInput(Array<User>& allUsers)
         _putch('*');
     }
     // сравниваем пароль с данными пользовател€ из массива
-    if (pass != allUsers[userNum].getPassword())        //логин и пароль не совпали
+    if (pass != allUsers.getUser(userNum).getPassword())        //логин и пароль не совпали
     {
         std::cout << "\n\nќшибка при вводе логина или парол€.\n\n";
         userNum = -1;
@@ -283,7 +283,7 @@ int ConversationManager::usersInput(Array<User>& allUsers)
     return userNum;
 }
 
-void ConversationManager::userMessChoise(User& user, Array<User>& allUsers, Array<Message>& arrPM, Array<Message>& arrCM)
+void ConversationManager::userMessChoise(User& user, Array<Message>& arrPM, Array<Message>& arrCM)
 {
     bool isRun = true;
     //»м€ пользовател€
@@ -321,7 +321,7 @@ void ConversationManager::userMessChoise(User& user, Array<User>& allUsers, Arra
         }
         if (sim == '2')     //написать сообщение в чат пользоватл€
         {
-            inputPrivateMessage(allUsers, user, arrPM);
+            inputPrivateMessage(user, arrPM);
         }
         if (sim == '3')         //просмотр сообщений из общего чата 
         {
@@ -367,52 +367,36 @@ void ConversationManager::outputCommonMessage(Array<Message>& arrCM)
     sim = _getch();
 }
 
-void ConversationManager::inputPrivateMessage(Array<User>& allUsers, User& user, Array<Message>& arrPM)
+void ConversationManager::inputPrivateMessage(User& user, Array<Message>& arrPM)
 {
     this->cleanConsole();
     std::cout << "\n\n¬ыберите номер пользовател€, что бы написать сообщение: \n";
-
-    struct usersList    //временна€ структура дл€ создани€ списка пользователей
-    {
-        int num{ 0 };
-        std::string name{ "" };
-        int numInAllUsers{ 0 };
-    };
-    Array <usersList> strList;
-    int count{ 0 };
+    int count = 0;
     for (int i = 0; i < allUsers.getCount(); ++i)
     {
-        if (user.getNickname() != allUsers[i].getNickname())
+        if (!(allUsers.getUser(i) == user))
         {
-            usersList* ptrUL = new usersList;
-            ptrUL->name = allUsers[i].getNickname();
-            ptrUL->num = count;
-            ptrUL->numInAllUsers = i;
-            strList.add(std::move(*ptrUL));
-            delete ptrUL;
-            count += 1;
+            std::cout << count << ". " << allUsers.getUser(i).getNickname() << std::endl;
+            count++;
         }
     }
-    for (int i = 0; i < strList.getCount(); ++i)
-    {
-        std::cout << strList[i].num << ". " << strList[i].name << std::endl;
-    }
-    bool isNumNotOK = true;
     int choise{ 0 };
-    while (isNumNotOK)
+    while (true)
     {
         choise = getIntValue();
-        if (choise >= 0 && choise < strList.getCount())   //выбрано правильное число
-            isNumNotOK = false;
+        if (choise >= 0 && choise < count)   //выбрано правильное число
+            break;
     }
 
-    std::cout << "\nЌаберите текст сообщение дл€ " << strList[choise].name << ": ";
+    int index;
+    allUsers.findUser(std::move(user), index);
+    if (choise >= index) choise++;
+    std::cout << "\nЌаберите текст сообщение дл€ " << allUsers.getUser(choise).getNickname() << ": ";
     std::string privateMes{ "" };
     getline(std::cin, privateMes);
     int mesNum = arrPM.getCount();
 
-    std::string name1 = user.getNickname();
-    Message* ptrPrivateMes = new Message(mesNum, privateMes, name1, strList[choise].name);
+    Message* ptrPrivateMes = new Message(mesNum, privateMes, user.getNickname(), allUsers.getUser(choise).getNickname());
     std::cout << "\n\n—ообщение сохранено под номером: " << mesNum << " \n\n";
     arrPM.add(std::move(*ptrPrivateMes));
     delete ptrPrivateMes;
