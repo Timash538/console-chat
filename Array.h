@@ -26,7 +26,7 @@ public:
 	void resize(int);
 	void show();
 	void deleteAt(int);
-	//bool find(T&& x, int &index);
+	bool find(T&& x, int &index);
 	int getCount() const;
 
 private:
