@@ -112,6 +112,12 @@ T Array<T>::get(int i) const
 	return _data[i];
 }
 
+template<typename T>
+inline int Array<T>::getCount() const
+{
+	return _count;
+}
+
 template <typename T>
 T Array<T>::operator[](int i) const
 {
