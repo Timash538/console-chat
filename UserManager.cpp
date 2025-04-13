@@ -53,6 +53,18 @@ bool UserManager::findUserByNickname(std::string&& nickname, int& index)
 	return false;
 }
 
+bool UserManager::findUserByNickname(std::string&& nickname)
+{
+	for (int i = 0; i < _users->getCount(); i++)
+	{
+		if (_users->get(i).getNickname() == nickname)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool UserManager::findUserByLogin(std::string&& login, int& index)
 {
 	for (int i = 0; i < _users->getCount(); i++)
@@ -60,6 +72,18 @@ bool UserManager::findUserByLogin(std::string&& login, int& index)
 		if (_users->get(i).getLogin() == login)
 		{
 			index = i;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UserManager::findUserByLogin(std::string&& login)
+{
+	for (int i = 0; i < _users->getCount(); i++)
+	{
+		if (_users->get(i).getLogin() == login)
+		{
 			return true;
 		}
 	}
@@ -88,4 +112,9 @@ void UserManager::showUsers()
 	{
 		std::cout << "ID: " << i << " " << " Никнейм: " << _users->get(i).getLogin() << std::endl;
 	}
+}
+
+int UserManager::getCount() const
+{
+	return _users->getCount();
 }

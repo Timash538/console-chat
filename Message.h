@@ -31,5 +31,8 @@ public:
 	std::string* getSendFrom();
 	std::string* getSendTo();
 	bool wasItPrinted() const;
+
+	//Операторы
+	bool operator==(const Message& other);
 };
 

@@ -13,10 +13,9 @@ int main()
 
 	Array <Message> privateMessagePool;
 	Array <Message> commonMessagePool;
-	Array <User> allUsers;
 	
 	//собственно текст программы:
-	std::unique_ptr<ConversationManager> cm (new ConversationManager(allUsers, privateMessagePool, commonMessagePool));		//создаем экземпл€р менеджера обмена данных с пользователем
+	std::unique_ptr<ConversationManager> cm (new ConversationManager(privateMessagePool, commonMessagePool));		//создаем экземпл€р менеджера обмена данных с пользователем
 	cm->start();
 	return 0;
 }

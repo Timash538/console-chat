@@ -64,3 +64,8 @@ bool Message::wasItPrinted() const
 {
 	return _wasItPrinted;
 }
+
+bool Message::operator==(const Message& other)
+{
+	return (_message == other._message) ? true : false;
+}

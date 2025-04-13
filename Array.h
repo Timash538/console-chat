@@ -8,12 +8,12 @@
 #define RESIZEAMOUNT 5
 #define MAX_SIZE INT32_MAX/4
 
-template <typename T> class Array //: public DataManager<T> //Êëàññ - îäèí èç ñïîñîáîâ õðàíåíèÿ äàííûõ
+template <typename T> class Array : public DataManager<T> //Êëàññ - îäèí èç ñïîñîáîâ õðàíåíèÿ äàííûõ
 {
 public:
 	Array();
 	Array(int);
-	Array(const Array& Array);
+	Array(const Array& other);
 	~Array();
 
 	void add(T&&);
@@ -22,6 +22,7 @@ public:
 	bool isEmpty();
 	T get(int) const;
 	T operator[](int at) const;	// èñïîëüçóåòñÿ ïðè ïîëó÷åíèè ñîäåðæèìîãî èç ÿ÷åéêè ìàññèâà
+	T& operator=(const T other) const;
 	int getSize() const;
 	void resize(int);
 	void show();
@@ -56,14 +57,14 @@ Array<T>::Array(int size)
 }
 
 template <typename T>
-Array<T>::Array(const Array& Array)
+Array<T>::Array(const Array& other)
 {
-	_count = Array._count;
-	_size = Array.getSize();
+	_count = other._count;
+	_size = other.getSize();
 	_data = new T [_size];
 	for (int i = 0; i < _count; i++)
 	{
-			_data[i] = Array[i];
+			_data[i] = other[i];
 	}
 	
 }
@@ -123,6 +124,18 @@ T Array<T>::operator[](int i) const
 {
 	if (i > _count - 1) throw std::exception("Get failure: âûõîä çà ïðåäåëû");
 	return _data[i];
+}
+
+template<typename T>
+inline T& Array<T>::operator=(const T other) const
+{
+	_count = other._count;
+	_size = other.getSize();
+	_data = new T[_size];
+	for (int i = 0; i < _count; i++)
+	{
+		_data[i] =other[i];
+	}
 }
 
 template <typename T>
@@ -210,6 +223,3 @@ bool Array<T>::find(T&& x, int& index)
 			}
 	return false;
 }
-
-
-
