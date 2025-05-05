@@ -8,6 +8,12 @@ public:
 	User(std::string login, std::string nickname, std::string password) : 
 		_login(login), _nickname(nickname), _password(password) {}
 	User() = default;
+	User(const User& other) :
+		_login(other._login), _nickname(other._nickname), _password(other._password) {
+	}
+	User(User&& other) noexcept;
+	User& operator=(User&& other) noexcept;
+
 	std::string getNickname() const;
 	std::string getLogin() const;
 	std::string getPassword() const;
