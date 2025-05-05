@@ -354,7 +354,7 @@ void MenuController::addUserToChatMenu(unsigned int chatID)
             }
             if (f) break;
         }
-        if (id >= _uM->getCount() - usersIDInChat.getCount() || f)
+        if (id >= _uM->getCount() || f)
         {
             pressEnter("Нет такого ID.");
             continue;
