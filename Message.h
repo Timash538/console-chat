@@ -1,38 +1,31 @@
 #pragma once
 #include <string>
+#include <memory>
+#include "User.h"
 
 class Message
 {
 private:
-	int _numMessage{0};
-	std::string _message{""};
-	std::string _sendFrom{""};
-	std::string _sendTo{""};
-	bool _wasItPrinted{ false };
+	std::shared_ptr<User> _sender;
+	std::string _msg;
 public:
 	// Конструкторы:
-	Message();
-	Message(int, std::string, std::string, std::string);
-	Message(int, std::string&, std::string&);
-
+	Message() = default;
+	Message(User, std::string);
+	Message(const Message& other);
+	Message(Message&& other) noexcept;
+	
 
 	// Деструктор
 	~Message() = default;
 
 	// Сеттеры:
-	void setNumMessage(int);
 	void setMessage(std::string&);
-	void setSendFrom(std::string&);
-	void setSendTo(std::string&);
+	void setSender(User user);
 
 	//Геттеры:
-	int getNumMessage() const;
-	std::string* getMessage();
-	std::string* getSendFrom();
-	std::string* getSendTo();
-	bool wasItPrinted() const;
+	std::string getMessage();
+	const User &getSendFrom();
 
-	//Операторы
-	bool operator==(const Message& other);
 };
 

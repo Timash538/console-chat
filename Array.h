@@ -8,35 +8,39 @@
 #define RESIZEAMOUNT 5
 #define MAX_SIZE INT32_MAX/4
 
-template <typename T> class Array : public DataManager<T> //Êëàññ - îäèí èç ñïîñîáîâ õðàíåíèÿ äàííûõ
+template <typename T> class Array : public DataManager<T>
 {
 public:
-	Array();
-	Array(int);
-	Array(const Array& other);
-	~Array();
 
+	Array();
+	~Array();
+	Array(unsigned int);
+	Array(const Array& other);
+	Array(Array&&) noexcept;
+	Array& operator=(Array&&);
+	
+	std::unique_ptr<DataManager<T>> clone() const override;
 	void add(T&&);
-	void pushAt(int, T&&);
 	bool isFull();
 	bool isEmpty();
-	T get(int) const;
-	T operator[](int at) const;	// èñïîëüçóåòñÿ ïðè ïîëó÷åíèè ñîäåðæèìîãî èç ÿ÷åéêè ìàññèâà
-	T& operator=(const T other) const;
-	int getSize() const;
-	void resize(int);
+	T& get(unsigned int i);
+	T& operator[](unsigned int i);
+	const T& operator[](unsigned int i) const;
+	Array<T>& operator=(const Array<T>& other);
+	unsigned int getSize() const;
+	void resize();
 	void show();
-	void deleteAt(int);
-	bool find(T&& x, int &index);
-	int getCount() const;
+	void deleteAt(unsigned int i);
+	unsigned int getCount() const;
 
 private:
-	unsigned int _size;
+
 	unsigned int _count;
-	T* _data;
+	unsigned int _size;
+	T** _data;
 
 	void clear();
-	void moveElementsLeft(int);
+	void moveElementsLeft(unsigned int);
 };
 
 template <typename T>
@@ -44,60 +48,92 @@ Array<T>::Array()
 {
 	_count = 0;
 	_size = SIZE;
-	_data = new T [_size];
+	_data = new T* [_size];
+	for (unsigned int i = 0; i < _size; i++)
+	{
+		_data[i] = nullptr;
+	}
 }
 
 template <typename T>
-Array<T>::Array(int size)
+Array<T>::Array(unsigned int size)
 {
 	_count = 0;
-	if (size < 0 || size > MAX_SIZE) throw std::exception("Constructor failure: ðàçìåð ìåíüøå íóëÿ/ñëèøêîì áîëüøîé");
 	_size = size;
-	_data = new T [_size];
+	if (size > MAX_SIZE) throw std::exception("Constructor failure:");
+	_data = new T* [_size];
+	for (unsigned int i = 0; i < _size; i++)
+	{
+		_data[i] = nullptr;
+	}
 }
 
 template <typename T>
 Array<T>::Array(const Array& other)
 {
+	for (unsigned int i = 0; i < _size; i++) if (_data[i]) delete _data[i];
+	delete[] _data;
 	_count = other._count;
 	_size = other.getSize();
-	_data = new T [_size];
-	for (int i = 0; i < _count; i++)
+	_data = new T* [_size];
+	for (unsigned int i = 0; i < _count; i++)
 	{
-			_data[i] = other[i];
+		if (other._data[i])
+		{
+			_data[i] = new T(*other._data[i]);
+		}
+		else
+		{
+			_data[i] = nullptr;
+		}
+			
 	}
 	
+}
+
+template<typename T>
+Array<T>::Array(Array&& other) noexcept
+{
+	_size = other._size;
+	_count = other._count;
+	_data = other._data;
+	other._data = nullptr;
+	other._size = 0;
+	other._count = 0;
 }
 
 template <typename T>
 Array<T>::~Array()
 {
+	for (unsigned int i = 0; i < _count; i++)
+	{
+		if (_data[i]) delete _data[i];
+	}
 	delete[] _data;
 }
 
-template <typename T>
-void Array<T>::add(T&& x)
+template<typename T>
+std::unique_ptr<DataManager<T>> Array<T>::clone() const
 {
-	if (_count == _size)
-	{
-		resize(RESIZEAMOUNT);
-	}
-
-	pushAt(_count, std::forward<T>(x));
+		return std::make_unique<Array<T>>(*this);
 }
 
 template <typename T>
-void Array<T>::pushAt(int i, T&& x)
+void Array<T>::add(T&& x) //add to first empty place
 {
-	if (i < 0 || i >= _size) throw std::exception("Add failure: ðàçìåð ìåíüøå íóëÿ/ñëèøêîì áîëüøîé");
-	_data[i] = x;
+	if (isFull())
+	{
+		resize();
+	}
+
+	_data[_count] = new T(std::forward<T>(x));
 	_count++;
 }
 
 template <typename T>
 bool Array<T>::isFull()
 {
-	return (_count) ? true : false;
+	return (_count == _size) ? true : false;
 }
 
 template <typename T>
@@ -107,84 +143,116 @@ bool Array<T>::isEmpty()
 }
 
 template <typename T>
-T Array<T>::get(int i) const
+T& Array<T>::get(unsigned int i)
 {
-	if (i > _count - 1) throw std::exception("Get failure: âûõîä çà ïðåäåëû");
-	return _data[i];
+	if (i > _count - 1) throw std::exception("Get failure: i > _count");
+	return *_data[i];
 }
 
 template<typename T>
-inline int Array<T>::getCount() const
+unsigned int Array<T>::getCount() const
 {
 	return _count;
 }
 
 template <typename T>
-T Array<T>::operator[](int i) const
+T& Array<T>::operator[](unsigned int i)
 {
-	if (i > _count - 1) throw std::exception("Get failure: âûõîä çà ïðåäåëû");
-	return _data[i];
+	if (i > _count - 1) throw std::exception("Get failure:");
+	return *_data[i];
 }
 
 template<typename T>
-inline T& Array<T>::operator=(const T other) const
+ const T& Array<T>::operator[](unsigned int i) const
 {
-	_count = other._count;
-	_size = other.getSize();
-	_data = new T[_size];
-	for (int i = 0; i < _count; i++)
-	{
-		_data[i] =other[i];
+	if (i > _count - 1) throw std::exception("Get failure:");
+	return *_data[i];
+}
+
+template<typename T>
+Array<T>& Array<T>::operator=(const Array<T>& other)
+{
+	if (this != &other) {
+
+		for (unsigned int i = 0; i < _size; ++i) {
+			delete _data[i];
+		}
+		delete[] _data;
+
+		_size = other._size;
+		_count = other._count;
+		_data = new T * [_size];
+
+		for (unsigned int i = 0; i < _size; ++i) {
+			if (i < other._count && other._data[i]) {
+				_data[i] = new T(*other._data[i]);
+			}
+			else {
+				_data[i] = nullptr;
+			}
+		}
 	}
+	return *this;
+}
+
+template<typename T>
+Array<T>& Array<T>::operator=(Array<T>&& other)
+{
+	for (unsigned int i = 0; i < _size; i++)
+	{
+		if (_data[i])
+		delete _data[i];
+	}
+	if (_data) delete[] _data;
+	_size = other._size;
+	_count = other._count;
+	_data = other._data;
+	other._data = nullptr;
+	return *this;
 }
 
 template <typename T>
 void Array<T>::clear()
 {
+	for (unsigned int i = 0; i < _count; ++i) {
+		delete _data[i];
+		_data[i] = nullptr;
+	}
 	_count = 0;
 }
 
 template <typename T>
-void Array<T>::moveElementsLeft(int pos) //ñäâèíóòü ýëåìåíòû âëåâî, íà÷èíàÿ ñ pos
+void Array<T>::moveElementsLeft(unsigned int pos)
 {
-	if (pos < 1 || pos >= _count) throw std::exception("MoveElementsLeft failure: ïîçèöèÿ ìåíüøå 1 èëè áîëüøå, ÷åì ïîñëåäíèé ýëåìåíò");
-	for (int i = pos; i < _size; i++)
+	if (pos < 1 || pos >= _count) throw std::exception("MoveElementsLeft failure: ");
+	for (unsigned int i = pos; i < _size; i++)
 	{
 			_data[i - 1] = _data[i];
 	}
 }
 
 template <typename T>
-int Array<T>::getSize() const
+unsigned int Array<T>::getSize() const
 {
 	return _size;
 }
 
 template <typename T>
-void Array<T>::resize(int slotsToAdd)
+void Array<T>::resize()
 {
-	if (_size + slotsToAdd > MAX_SIZE || slotsToAdd < 1) throw std::exception("Resize failure: ñëèøêîì áîëüøîé íîâûé ðàçìåð ìàññèâà/äîáàâëåíèå 0 èëè îòðèöàòåëüíîãî êîë-âà ÿ÷ååê");
+	if (_size + RESIZEAMOUNT > MAX_SIZE) throw std::exception("Resize failure");
 
-	T* arr = new T[_size];
+	unsigned int newSize = _size + RESIZEAMOUNT;
+	T** newData = new T * [newSize] { nullptr };
 
-	for (int i = 0; i < _size; i++)
-	{
-			arr[i] = T(_data[i]);
+	for (unsigned int i = 0; i < _count; ++i) {
+		newData[i] = _data[i];
 	}
 
 	delete[] _data;
 
-	_size += slotsToAdd;
-	_data = new T[_size];
-	
-	for (int i = 0; i < _size; i++)
-	{
-		if (i < _size - slotsToAdd)
-		{
-			_data[i] = arr[i];
-		}
-	}
-	delete[] arr;
+	_data = newData;
+	_size = newSize;
 }
 
 template <typename T>
@@ -192,34 +260,40 @@ void Array<T>::show()
 {
 	if (isEmpty())
 	{
-		std::cout << "Ïóñòîé ìàññèâ" << std::endl;
+		std::cout << "Array is empty!" << std::endl;
 		return;
 	}
-	for (int i = 0; i < _count; i++)
+	for (unsigned int i = 0; i < _count; i++)
 	{
-		std::cout << "Ýëåìåíò " << i << " : " << _data[i] << std::endl;
+		std::cout << "Element " << i << " : " << *_data[i] << std::endl;
 	}
 }
 
 template <typename T>
-void Array<T>::deleteAt(int i)
+void Array<T>::deleteAt(unsigned int i)
 {
-	if (i < 0 || i >= _size) throw std::exception("Delete failure: âûõîä çà ïðåäåëû ìàññèâà");
-	if (i>_count-1) std::cout << "Ïóñòîé ýëåìåíò!" << std::endl;
+	if (i >= _count) throw std::exception("Delete failure");
 
-	if (i<_size-2)
-	moveElementsLeft(i+1);
+	delete _data[i];
+
+	for (unsigned int j = i; j < _count - 1; ++j) {
+		_data[j] = _data[j + 1];
+	}
+
+	_data[_count - 1] = nullptr;
 	_count--;
 }
 
 template <typename T>
-bool Array<T>::find(T&& x, int& index)
+bool find(Array<T> arr, T item, int& idx)
 {
-	for (int i = 0; i < _count; i++)
-			if (_data[i] == x)
-			{
-				index = i;
-				return true;
-			}
+	for (int i = 0; i < arr.getCount(); i++)
+	{
+		if (arr.get(i) == item)
+		{
+			idx = i;
+			return true;
+		}
+	}
 	return false;
 }

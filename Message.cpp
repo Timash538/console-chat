@@ -1,71 +1,29 @@
 #include "Message.h"
 
-Message::Message()
+Message::Message(User sender, std::string msg) : _sender(std::make_shared<User>(sender)), _msg(msg)
 {
 }
 
-Message::Message(int numMessage, std::string message, std::string sendFrom, std::string sendTo)
+Message::Message(const Message& other) : _msg(other._msg), _sender(std::make_shared<User>(*(other._sender))) {}
+Message::Message(Message&& other) noexcept : _msg(std::move(other._msg)), _sender(std::make_shared<User>(*(other._sender))) {}
+
+void Message::setMessage(std::string& msg)
 {
-	_numMessage = numMessage;
-	_message = message;
-	_sendFrom = sendFrom;
-	_sendTo = sendTo;
+	_msg = msg;
 }
 
-Message::Message(int numMessage, std::string& message, std::string& sendFrom)
+void Message::setSender(User sender)
 {
-	_numMessage = numMessage;
-	_message = message;
-	_sendFrom = sendFrom;
-	_sendTo = std::string{"All"};
+	_sender = std::make_shared<User>(sender);
 }
 
-void Message::setNumMessage(int numMessage)
+std::string Message::getMessage()
 {
-	_numMessage = numMessage;
+	return _msg;
 }
 
-void Message::setMessage(std::string& message)
+const User& Message::getSendFrom()
 {
-	_message = message;
+	return *_sender;
 }
 
-void Message::setSendFrom(std::string& sendFrom)
-{
-	_sendFrom = sendFrom;
-}
-
-void Message::setSendTo(std::string& sendTo)
-{
-	_sendTo = sendTo;
-}
-
-int Message::getNumMessage() const
-{
-	return _numMessage;
-}
-
-std::string* Message::getMessage()
-{
-	return &_message;
-}
-
-std::string* Message::getSendFrom()
-{
-	return &_sendFrom;
-}
-
-std::string* Message::getSendTo()
-{
-	return &_sendTo;
-}
-
-bool Message::wasItPrinted() const
-{
-	return _wasItPrinted;
-}
-
-bool Message::operator==(const Message& other)
-{
-	return (_message == other._message) ? true : false;
-}

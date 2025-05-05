@@ -128,19 +128,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Array.h" />
-    <ClInclude Include="ConversationManager.h" />
+    <ClInclude Include="ChatManager.h" />
     <ClInclude Include="DataManager.h" />
+    <ClInclude Include="MenuController.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="UserManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ConversationManager.cpp" />
-    <ClCompile Include="getRightInt.cpp" />
+    <ClCompile Include="ChatManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MenuController.cpp" />
     <ClCompile Include="Message.cpp" />
     <ClCompile Include="User.cpp" />
     <ClCompile Include="UserManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

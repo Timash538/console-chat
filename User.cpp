@@ -1,5 +1,18 @@
 #include "User.h"
 
+User::User(User&& other) noexcept
+	: _nickname(std::move(other._nickname)),
+	_login(std::move(other._login)),
+	_password(std::move(other._password)) {
+}
+
+User& User::operator=(User&& other) noexcept {
+	_nickname = std::move(other._nickname);
+	_login = std::move(other._login);
+	_password = std::move(other._password);
+	return *this;
+}
+
 std::string User::getNickname()	const
 {
 	return _nickname;
